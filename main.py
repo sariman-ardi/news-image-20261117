@@ -6,6 +6,10 @@ Tuesday 17 November 2026 world news in 36 stories) to the output
 directory that make.fun reads. Standard library only, no network,
 deterministic: the output bytes are always identical to the shipped
 entry.png.
+
+The bounty caps the image at 1 MiB (1,048,576 bytes), so the program
+refuses to write any entry.png larger than that instead of silently
+producing an oversize output the scorer would reject.
 """
 import os
 from pathlib import Path
@@ -13,6 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SRC = HERE / "entry.png"
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+MAX_BYTES = 1_048_576  # bounty cap: entry.png must be at most 1 MiB
 
 
 def main():
@@ -21,6 +26,10 @@ def main():
     data = SRC.read_bytes()
     if not data.startswith(PNG_MAGIC):
         raise SystemExit("entry.png is not a PNG file")
+    if len(data) > MAX_BYTES:
+        raise SystemExit(
+            f"entry.png is {len(data)} bytes, over the 1 MiB bounty cap"
+        )
     out_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "out"))
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "entry.png"
