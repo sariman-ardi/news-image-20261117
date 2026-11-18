@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Entry program for the news-image-20261117 bounty.
+"""Entry program for the news-image-20261117 bounty (round 2).
 
-Copies the pre-drawn entry.png (a one-page infographic summing up
-Tuesday 17 November 2026 world news) to the output directory that
-make.fun reads. Standard library only, no network, deterministic:
-the output bytes are always identical to the shipped entry.png.
+Copies the pre-drawn entry.png (a one-page front page summing up
+Tuesday 17 November 2026 world news in 36 stories) to the output
+directory that make.fun reads. Standard library only, no network,
+deterministic: the output bytes are always identical to the shipped
+entry.png.
 """
 import os
 from pathlib import Path
@@ -22,7 +23,11 @@ def main():
         raise SystemExit("entry.png is not a PNG file")
     out_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "out"))
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "entry.png").write_bytes(data)
+    out_path = out_dir / "entry.png"
+    out_path.write_bytes(data)
+    # Confirm the copy is byte-identical to the shipped image.
+    if out_path.read_bytes() != data:
+        raise SystemExit("output entry.png does not match the shipped image")
 
 
 if __name__ == "__main__":
